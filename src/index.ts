@@ -11,7 +11,8 @@ import { Grid } from "./types";
 import { SquareState } from "./enum/SquareState";
 import { getSquarePos } from "./utils/position";
 import { getSurroundingSquares } from "./utils/grid";
-import { GAME_OVER_TOKEN, GAME_WON_TOKEN, readGrid } from "./screen";
+import { flagPositions, GAME_OVER_TOKEN, GAME_WON_TOKEN, readGrid } from "./screen";
+import { combineXY } from "./utils/numbers";
 
 const args = process.argv.slice(2)
 
@@ -89,6 +90,7 @@ function gridClick(grid: Grid) {
             console.log("Flag", x, y, surroundingSquare)
           }
           grid[surroundingSquare[1]][surroundingSquare[0]] = SquareState.FLAG
+          flagPositions.push(combineXY(surroundingSquare[0], surroundingSquare[1]))
           flagOnGrid(surroundingSquare[0], surroundingSquare[1])
         }
         // Exit entirely to next interation

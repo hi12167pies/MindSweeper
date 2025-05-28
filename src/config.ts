@@ -1,7 +1,7 @@
 // Config values (Value that most likely will change)
 
 /** Maximum interations before the program will shut off */
-export const MAX_INTERATIONS = 500
+export const MAX_INTERATIONS = 50
 
 export const GRID_COLUMNS = 16
 export const GRID_ROWS = 16

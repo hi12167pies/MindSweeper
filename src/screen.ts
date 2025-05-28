@@ -6,6 +6,7 @@ import { GameOverToken, GameWonToken, Grid, Position } from "./types"
 import screenshotDesktop from "screenshot-desktop"
 import { Jimp } from "jimp"
 import { getSquarePos } from "./utils/position"
+import { combineXY } from "./utils/numbers"
 
 /**
  * Returns number if there is an amonut of mines, otherwise returns square state
@@ -61,6 +62,16 @@ export function readSquareState(posX: number, posY: number, screen?: any): numbe
 export const GAME_OVER_TOKEN: GameOverToken = 0x10
 export const GAME_WON_TOKEN: GameWonToken = 0x11
 
+/**
+ * This array is 100% safe positions which can be used to optimize the scanner to skip across these sections.
+ */
+export const safePositions: number[] = []
+/**
+ * This array is 100% flagged positions.
+ * Same principle as {@link safePositions}
+ */
+export const flagPositions: number[] = []
+
 export async function readGrid(): Promise<Grid | GameOverToken | GameWonToken> {
   const grid: Grid = new Array(GRID_ROWS)
 
@@ -84,9 +95,26 @@ export async function readGrid(): Promise<Grid | GameOverToken | GameWonToken> {
   for (let y = 0; y < GRID_ROWS; y++) {
     const row = new Array(GRID_COLUMNS)
     
-    for (let x = 0; x < GRID_COLUMNS; x++) {
+    xLoop: for (let x = 0; x < GRID_COLUMNS; x++) {
+      const combined = combineXY(x, y)
+      if (safePositions.includes(combined)) {
+        row[x] = SquareState.EMPTY
+        continue xLoop
+      }
+      if (flagPositions.includes(combined)) {
+        row[x] = SquareState.FLAG
+        continue xLoop
+      }
+
       const squarePos = getSquarePos(x, y)
       const state = readSquareState(squarePos.x, squarePos.y, jimp)
+
+      if (state == SquareState.EMPTY) {
+        safePositions.push(combined)
+      }
+      if (state == SquareState.FLAG) {
+        safePositions.push(combined)
+      }
       
       row[x] = state
     }
