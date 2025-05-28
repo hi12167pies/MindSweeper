@@ -1,0 +1,22 @@
+{
+  "name": "minesweeper",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "jimp": "^1.6.0",
+    "robotjs": "^0.6.0",
+    "screenshot-desktop": "^1.15.1"
+  },
+  "devDependencies": {
+    "@types/jimp": "^0.2.1",
+    "@types/node": "^22.15.23",
+    "@types/screenshot-desktop": "^1.12.3"
+  }
+}
