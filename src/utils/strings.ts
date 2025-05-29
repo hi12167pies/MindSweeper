@@ -36,7 +36,7 @@ export function translateChar(state: number) {
   return state.toString()
 }
 
-function logGrid(grid: Grid) {
+export function logGrid(grid: Grid) {
   for (let y = 0; y < GRID_ROWS; y++) {
     for (let x = 0; x < GRID_COLUMNS; x++) {
       const state = grid[y][x]
