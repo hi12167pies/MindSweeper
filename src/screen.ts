@@ -57,23 +57,18 @@ export function readSquareState(posX: number, posY: number, screen?: any): numbe
   return SquareState.ERROR;
 }
 
+/**
+ * A list of squares which will skip processing.
+ * This will be either EMPTY or FLAGED squares.
+ */
+export const skipProcessing = new Set<number>()
 
 
 export const GAME_OVER_TOKEN: GameOverToken = 0x10
 export const GAME_WON_TOKEN: GameWonToken = 0x11
 
-/**
- * This array is 100% safe positions which can be used to optimize the scanner to skip across these sections.
- */
-export const safePositions = new Set<number>()
-/**
- * This array is 100% flagged positions.
- * Same principle as {@link safePositions}
- */
-export const flagPositions = new Set<number>()
-
-export async function readGrid(): Promise<Grid | GameOverToken | GameWonToken> {
-  const grid: Grid = new Array(GRID_ROWS)
+export async function readGrid(previousGrid?: Grid): Promise<Grid | GameOverToken | GameWonToken> {
+  const grid: Grid = previousGrid || new Array(GRID_ROWS)
 
   const screenshot = await screenshotDesktop({
     format: "png"
@@ -93,29 +88,22 @@ export async function readGrid(): Promise<Grid | GameOverToken | GameWonToken> {
   }
 
   for (let y = 0; y < GRID_ROWS; y++) {
-    const row = new Array(GRID_COLUMNS)
+    let row = grid[y] || new Array(GRID_COLUMNS)
     
     xLoop: for (let x = 0; x < GRID_COLUMNS; x++) {
-      const combined = combineXY(x, y)
-      if (safePositions.has(combined)) {
-        row[x] = SquareState.EMPTY
-        continue xLoop
-      }
-      if (flagPositions.has(combined)) {
-        row[x] = SquareState.FLAG
-        continue xLoop
+      if (row[x] != undefined && !(row[x] == SquareState.UNKNOWN || row[x] == SquareState.SAFE_UNKNOWN)) {
+        // Skip processing square
+        continue
       }
 
       const squarePos = getSquarePos(x, y)
       const state = readSquareState(squarePos.x, squarePos.y, jimp)
-
-      if (state == SquareState.EMPTY) {
-        safePositions.add(combined)
-      }
-      if (state == SquareState.FLAG) {
-        safePositions.add(combined)
-      }
       
+      if (state == SquareState.EMPTY || state == SquareState.FLAG) {
+        const combined = combineXY(x, y)
+        skipProcessing.add(combined)
+      }
+
       row[x] = state
     }
 

@@ -11,7 +11,7 @@ import { Grid } from "./types";
 import { SquareState } from "./enum/SquareState";
 import { getSquarePos } from "./utils/position";
 import { getSurroundingSquares } from "./utils/grid";
-import { flagPositions, GAME_OVER_TOKEN, GAME_WON_TOKEN, readGrid, safePositions } from "./screen";
+import { GAME_OVER_TOKEN, GAME_WON_TOKEN, readGrid, skipProcessing } from "./screen";
 import { combineXY } from "./utils/numbers";
 
 const args = process.argv.slice(2)
@@ -49,7 +49,12 @@ function gridClick(grid: Grid) {
 
       if (NON_NUMBER_STATES.includes(state)) continue
       const combined = combineXY(x, y)
-      if (safePositions.has(combined) || flagPositions.has(combined)) continue
+      if (skipProcessing.has(combined)) {
+        if (ARG_VERBOSE) {
+          console.log("Skipped processing", x, y)
+        }
+        continue
+      }
 
       let surroundingSquares = getSurroundingSquares(grid, x, y)
 
@@ -59,7 +64,7 @@ function gridClick(grid: Grid) {
         if (ARG_VERBOSE) {
           console.log("Skip (complete)", x, y)
         }
-        safePositions.add(combined)
+        skipProcessing.add(combined)
         continue
       }
 
@@ -93,7 +98,6 @@ function gridClick(grid: Grid) {
             console.log("Flag", x, y, surroundingSquare)
           }
           grid[surroundingSquare[1]][surroundingSquare[0]] = SquareState.FLAG
-          flagPositions.add(combineXY(surroundingSquare[0], surroundingSquare[1]))
           flagOnGrid(surroundingSquare[0], surroundingSquare[1])
         }
         // Exit entirely to next interation
@@ -110,7 +114,7 @@ async function main() {
     clickOnGrid(randomInt(GRID_COLUMNS), randomInt(GRID_ROWS))
   }
 
-  let grid = await readGrid()
+  let grid = await readGrid([])
 
   let i = 0
 
