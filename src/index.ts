@@ -71,7 +71,6 @@ function gridClick(grid: Grid) {
       surroundingSquares = surroundingSquares.filter(square => square[2] != null)
 
       const surroundingFlag = surroundingSquares.filter(square => square[2] == SquareState.FLAG)
-      // const surroundingSafeUnknown = surroundingSquares.filter(square => square[2] == SquareState.SAFE_UNKNOWN)
 
       // If the amount of flags equals the amount of squares, click on everything safe
       if (surroundingFlag.length == state) {
