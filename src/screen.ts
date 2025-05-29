@@ -65,12 +65,12 @@ export const GAME_WON_TOKEN: GameWonToken = 0x11
 /**
  * This array is 100% safe positions which can be used to optimize the scanner to skip across these sections.
  */
-export const safePositions: number[] = []
+export const safePositions = new Set<number>()
 /**
  * This array is 100% flagged positions.
  * Same principle as {@link safePositions}
  */
-export const flagPositions: number[] = []
+export const flagPositions = new Set<number>()
 
 export async function readGrid(): Promise<Grid | GameOverToken | GameWonToken> {
   const grid: Grid = new Array(GRID_ROWS)
@@ -97,11 +97,11 @@ export async function readGrid(): Promise<Grid | GameOverToken | GameWonToken> {
     
     xLoop: for (let x = 0; x < GRID_COLUMNS; x++) {
       const combined = combineXY(x, y)
-      if (safePositions.includes(combined)) {
+      if (safePositions.has(combined)) {
         row[x] = SquareState.EMPTY
         continue xLoop
       }
-      if (flagPositions.includes(combined)) {
+      if (flagPositions.has(combined)) {
         row[x] = SquareState.FLAG
         continue xLoop
       }
@@ -110,10 +110,10 @@ export async function readGrid(): Promise<Grid | GameOverToken | GameWonToken> {
       const state = readSquareState(squarePos.x, squarePos.y, jimp)
 
       if (state == SquareState.EMPTY) {
-        safePositions.push(combined)
+        safePositions.add(combined)
       }
       if (state == SquareState.FLAG) {
-        safePositions.push(combined)
+        safePositions.add(combined)
       }
       
       row[x] = state
